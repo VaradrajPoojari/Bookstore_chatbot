@@ -1,8 +1,8 @@
 import openai
 import re
-from Prompts import classification_prompt
-from Prompts import generation_prompt
-from Prompts import genre_summary_prompt
+from src.Prompts import classification_prompt
+from src.Prompts import generation_prompt
+from src.Prompts import genre_summary_prompt
 import time
 import os
 from dotenv import load_dotenv
@@ -76,7 +76,7 @@ def extract_labels(text):
       prompt = classification_prompt.format(text=text)
 
       answer = openai.chat.completions.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
           {
             "role": "system",
