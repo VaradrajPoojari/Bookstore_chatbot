@@ -1,8 +1,11 @@
-classification_prompt = """ Classify the text as labels: BOOK_ENQUIRY, ADD_TO_CART, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER
+classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER
     ======================================
     LABEL_MAPPER =
-        "BOOK_ENQUIRY": [Summary, Genre, Author, Science, Fiction],
-        "ADD_TO_CART": ["Buy", "Add to cart"],
+        "RECOMMENDATION": [Recommendation, Science, Fiction],
+        "GENRE": [Genre, Science, Fiction],
+        "SUMMARY": [Summary, Synopsis, Description],
+        "BUY": ["Buy", "Add to cart", "Purchase"],
+        "NUMBER": [Reach, Call, Number],
         "DELIVERY": ["Delivery"],
         "AVAILABILITY": ["is it available"],
         "ADDRESS": ["Address", "Location"],
@@ -12,10 +15,26 @@ classification_prompt = """ Classify the text as labels: BOOK_ENQUIRY, ADD_TO_CA
             Examples
             text: no
             labels: OTHER
-            text: Summary of nemesis
-            labels: BOOK_ENQUIRY
-            text: Genre of nemesis
-            labels: BOOK_ENQUIRY
+            text: Whats the genre of Nemesis
+            labels: GENRE
+            text: Give me a short description of this book
+            labels: SUMMARY
+            text: Synopsis of this book
+            labels: SUMMARY
+            text: Summary of this book
+            labels: SUMMARY
+            text: Recommend me a few books in horror
+            labels: RECOMMENDATION
+            text: Recommend me a few books in romance
+            labels: RECOMMENDATION
+            text: Who is the author of this book
+            labels: OTHER
+            text: How do i purchase this book ?
+            labels: BUY
+            text: How can I reach you ?
+            labels: NUMBER
+            text: Whats your Number ?
+            labels: NUMBER
             text: nope
             labels: OTHER
             text: Is it in the store
@@ -60,12 +79,18 @@ generation_prompt = (
 )
 
 genre_summary_prompt = (
-        """Paraphrase and break the '{inquiry_message}' from a client interested in a book if it is about the book's Genre and Summary. \n\n "
-    "Remove anything else in the question not related to genre or summary"
+        """Paraphrase and break the '{inquiry_message}' from a client interested in a book \n\n "
+    "Remove anything else in the question not related to summary or description or genre or synopsis"
     "Do not extend or add anything to the '{inquiry_message}' \n\n
-    "If the '{inquiry_message}' is about anything else other then Genre or Summary or Recommendation of a book return FALSE \n\n "
+    "If the '{inquiry_message}' is about anything else other then Genre or Summary or Recommendation or Synopsis of a book return FALSE \n\n "
     ======================================
     Examples
+    inquiry_message: Description of Dracula?
+    answer: Description of Dracula?
+    inquiry_message: Synopsis of a Book?
+    answer: Synopsis of a book?
+    inquiry_message: Which books can I buy?
+    answer: Which books can I buy?
     inquiry_message: Genre of Nemesis
     answer: Genre of Nemesis
     inquiry_message: Summary of Nemesis and is the book available?

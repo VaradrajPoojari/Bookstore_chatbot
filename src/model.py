@@ -7,6 +7,7 @@ import time
 import os
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
+import random
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,12 +38,13 @@ vectorstore = Pinecone(
 )
 
 messages = {
-  'ADD_TO_CART': "Sure, you can add the book to cart by clicking on the addition",
-  'AVAILABILITY': "We have most of the books in our inventory. Please contact us for more information",
+  'BUY': "Sure, you can buy a book by adding it to the cart and checking out",
+  'AVAILABILITY': "We have most of the books in our inventory. Please contact us for more information at 77314382",
   'ADDRESS': "We are located in 111 W Ave, Surrey, BC",
   'STOP': "Thank you!",
   'TIMINGS': "We are open from 9am-5pm everyday",
   'DELIVERY': "We can deliver certain books. Please contact us for more information",
+  'NUMBER': "You can reach us at 77314382.",
   'OTHER': "Sorry, I am unsure how to answer that. You can get in touch with us at 77314382"
 }
 
@@ -66,6 +68,15 @@ def call_vectordb(text):
     )
   return result
 
+def call_recommendation(text):
+
+  query = text
+  result = vectorstore.similarity_search(
+      query,  # our search query
+      k=3  # return 1 most relevant docs
+    )
+  return result
+
 def extract_labels(text):
   """Receives a text and extract a list of labels from it using Open AI"""
   in_progress = True
@@ -76,21 +87,19 @@ def extract_labels(text):
       prompt = classification_prompt.format(text=text)
 
       answer = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
           {
             "role": "system",
             "content": "You are a classification model that classifies the text into labels: \
-                              BOOK_ENQUIRY, ADD_TO_CART, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER. \nKeeping in mind the prompt's label mapper and the examples",
+                              RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER. \nKeeping in mind the prompt's label mapper and the examples",
           },
           {"role": "user", "content": f"{prompt}"},
         ],
         temperature=0.15,
       )
 
-      labels_match = re.search(r'labels: (.+)', answer.choices[0].message.content)
-      if labels_match:
-        labels = labels_match.group(1)
+      labels = answer.choices[0].message.content
 
       labels = labels.split(", ")
 
@@ -174,7 +183,7 @@ def is_genre_summary(inquiry_message):
         messages=[
           {
             "role": "system",
-            "content": "You are a model that paraphrases the inquiry message only to include include messages realted to Genre and Summary of a book",
+            "content": "You are a model that paraphrases the inquiry message only to include include messages realted to Summary or Genre or Recommendation of a book",
           },
           {"role": "user", "content": f"{prompt}"},
         ],
@@ -207,19 +216,27 @@ def final_function(text,id=None):
   print(Label_list)
 
   # Check if 'BOOK_ENQUIRY' is present in Label_list
-  if 'BOOK_ENQUIRY' in Label_list:
+  if 'RECOMMENDATION' in Label_list or 'GENRE' in Label_list or 'SUMMARY' in Label_list:
     # Append the message from the result of vector_db function
     print(text)
     modified_text = is_genre_summary(text)
     print(modified_text)
     if (modified_text == "FALSE" or modified_text == "False" or modified_text is False) and len(Label_list) >= 1:  # If result is "FALSE" and 'BOOK_ENQUIRY' is the only label
-      print("inif")
       Label_list.append('OTHER')
-      Label_list.remove('BOOK_ENQUIRY')
+      labels_to_remove = ['RECOMMENDATION', 'GENRE', 'SUMMARY']
+
+      for label in labels_to_remove:
+        if label in Label_list:
+          Label_list.remove(label)
     else:
-      book_enquiry_result = call_vectordb(modified_text)
-      print(book_enquiry_result)
-      context_messages.append(book_enquiry_result)
+      if 'RECOMMENDATION' in Label_list:
+        recommendation_result = call_recommendation(modified_text)
+        print(recommendation_result)
+        context_messages.append(recommendation_result)
+      else:
+        book_enquiry_result = call_vectordb(modified_text)
+        print(book_enquiry_result)
+        context_messages.append(book_enquiry_result)
   print(Label_list)
 
   if 'OTHER' in Label_list and len(Label_list) > 1:
@@ -230,7 +247,7 @@ def final_function(text,id=None):
   else:
         # If 'OTHER' is not present or is the only label, add the corresponding message
         for label in Label_list:
-            if label != 'BOOK_ENQUIRY':
+            if label not in ['RECOMMENDATION', 'GENRE', 'SUMMARY']:
                 context_messages.append(messages[label])
 
 
@@ -239,11 +256,19 @@ def final_function(text,id=None):
 
   inquiry_message = text
   context = context_messages
-  followup_question = "Do you have more questions ?"
+  followup_questions = [
+    "Do you have more questions?",
+    "Is there anything else you'd like to know?",
+    "Would you like more information?",
+    "Do you need assistance with anything else?"
+  ]
+
+  # Randomly select a follow-up question
+  random_followup_question = random.choice(followup_questions)
   chat_response = generate_response(
     inquiry_message,
     context,
-    followup_question,
+    random_followup_question,
   )
   chat_response = chat_response.replace("\n\n", "")
   chat_response = chat_response.replace("\n", "")
