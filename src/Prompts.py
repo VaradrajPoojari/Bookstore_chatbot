@@ -78,8 +78,7 @@ generation_prompt = (
     "Avoid repeating phrases. \n\n"
 )
 
-genre_summary_prompt = (
-        """Paraphrase and break the '{inquiry_message}' from a client interested in a book \n\n "
+genre_summary_prompt = """Paraphrase and break the '{inquiry_message}' from a client interested in a book \n\n "
     "Remove anything else in the question not related to summary or description or genre or synopsis"
     "Do not extend or add anything to the '{inquiry_message}' \n\n
     "If the '{inquiry_message}' is about anything else other then Genre or Summary or Recommendation or Synopsis of a book return FALSE \n\n "
@@ -102,4 +101,3 @@ genre_summary_prompt = (
     inquiry_message: '{inquiry_message}'
     answer:
      """
-)

@@ -8,6 +8,7 @@ class Request(BaseModel):
     text: str
     lead_id: int
 
+
 app = FastAPI()
 
 
