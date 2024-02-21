@@ -37,9 +37,10 @@ vectorstore = Pinecone(index, embeddings.embed_query, text_field)
 
 messages = {
     "BUY": "Sure, you can buy a book by adding it to the cart and checking out",
+    "RETURN": "You can return any book to us within thirty days of purchasing it.",
     "AVAILABILITY": "We have most of the books in our inventory. Please contact us for more information at 77314382",
     "ADDRESS": "We are located in 111 W Ave, Surrey, BC",
-    "STOP": "Thank you!",
+    "STOP": "Thank you for using our online services!",
     "TIMINGS": "We are open from 9am-5pm everyday",
     "DELIVERY": "We can deliver certain books. Please contact us for more information",
     "NUMBER": "You can reach us at 77314382.",
@@ -91,7 +92,7 @@ def extract_labels(text):
                     {
                         "role": "system",
                         "content": "You are a classification model that classifies the text into labels: \
-                              RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER. \nKeeping in mind the prompt's label mapper and the examples",
+                              RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, RETURN, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER. \nKeeping in mind the prompt's label mapper and the examples",
                     },
                     {"role": "user", "content": f"{prompt}"},
                 ],
@@ -178,7 +179,7 @@ def is_genre_summary(inquiry_message):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a model that paraphrases the inquiry message only to include include messages realted to Summary or Genre or Recommendation of a book",
+                        "content": "You are a model that paraphrases the inquiry message only to include include messages related to Summary or Genre or Recommendation of a book",
                     },
                     {"role": "user", "content": f"{prompt}"},
                 ],

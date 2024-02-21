@@ -1,4 +1,4 @@
-classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, AVAILABILITY, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER
+classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, SUMMARY, BUY, NUMBER, AVAILABILITY, RETURN, ADDRESS, STOP, TIMINGS, DELIVERY, OTHER
     ======================================
     LABEL_MAPPER =
         "RECOMMENDATION": [Recommendation, Science, Fiction],
@@ -8,13 +8,14 @@ classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, 
         "NUMBER": [Reach, Call, Number],
         "DELIVERY": ["Delivery"],
         "AVAILABILITY": ["is it available"],
+        "RETURN": ["return policy", "days to return"],
         "ADDRESS": ["Address", "Location"],
-        "OTHER": ["call me tomorrow", "no sounds good", "no thank you", "no", "nope", "call when you find out", "No", "call me"],
-        "STOP": ["not interested", "already purchased", "already contacted", "stop", "dealing with", "salesperson is already helping", "spoke with", "sold already", "don't call"],
+        "OTHER": ["call me tomorrow", "call when you find out", "call me", "any"],
+        "STOP": ["no sounds good", "no thank you", "no", "No" , "nope", "thank you", "not interested", "already purchased", "already contacted", "stop", "dealing with", "salesperson is already helping", "spoke with", "sold already", "don't call"],
         ======================================
             Examples
             text: no
-            labels: OTHER
+            labels: STOP
             text: Whats the genre of Nemesis
             labels: GENRE
             text: Give me a short description of this book
@@ -31,12 +32,16 @@ classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, 
             labels: OTHER
             text: How do i purchase this book ?
             labels: BUY
+            text: How do i return this book ?
+            labels: RETURN
+            text: Whats your return policy ?
+            labels: RETURN
             text: How can I reach you ?
             labels: NUMBER
             text: Whats your Number ?
             labels: NUMBER
             text: nope
-            labels: OTHER
+            labels: STOP
             text: Is it in the store
             labels: AVAILABILITY
             text: Can you deliver the book to my location?
@@ -58,7 +63,7 @@ classification_prompt = """ Classify the text as labels: RECOMMENDATION, GENRE, 
             text: please disregard this request
             labels: STOP
             text: nope thank you!
-            labels: OTHER
+            labels: STOP
             text: no i actually would like to purchase it as soon as possible
             labels: OTHER
             text: 4 or 5
